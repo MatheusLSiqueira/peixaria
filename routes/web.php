@@ -1,17 +1,24 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
-// ─── Públicas ───────────────────────────────────────────────
+/*
+|--------------------------------------------------------------------------
+| Rotas Públicas (Visitantes e Clientes)
+|--------------------------------------------------------------------------
+*/
+
+// Home e Listagem de Produtos
 Route::get('/', [ProductController::class, 'index'])->name('home');
 Route::get('/produtos', [ProductController::class, 'index'])->name('products.index');
 Route::get('/produtos/{product}', [ProductController::class, 'show'])->name('products.show');
 
-// ─── Carrinho (público, sessão) ──────────────────────────────
+// Carrinho de Compras (Acessível sem login)
 Route::prefix('carrinho')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/adicionar/{product}', [CartController::class, 'add'])->name('add');
@@ -20,32 +27,55 @@ Route::prefix('carrinho')->name('cart.')->group(function () {
     Route::delete('/limpar', [CartController::class, 'clear'])->name('clear');
 });
 
-// ─── Pedidos (autenticado) ───────────────────────────────────
-Route::prefix('pedidos')->name('orders.')->middleware('auth')->group(function () {
-    Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
-    Route::post('/', [OrderController::class, 'store'])->name('store');
-    Route::get('/', [OrderController::class, 'index'])->name('index');
-    Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+/*
+|--------------------------------------------------------------------------
+| Rotas Protegidas (Apenas Usuários Logados)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // Dashboard padrão do usuário
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    // Perfil do Usuário (Breeze)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Pedidos do Cliente
+    Route::prefix('pedidos')->name('orders.')->group(function () {
+        Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout');
+        Route::post('/', [OrderController::class, 'store'])->name('store');
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+    });
 });
 
-// ─── Admin ───────────────────────────────────────────────────
+/*
+|--------------------------------------------------------------------------
+| Rotas Administrativas (Apenas para Admins)
+|--------------------------------------------------------------------------
+*/
+// Certifique-se de que o middleware 'admin' está registrado em app/Http/Kernel.php
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
-    // Pedidos admin
+    // Gestão de Pedidos (Admin)
     Route::get('/pedidos', [AdminController::class, 'orders'])->name('orders');
     Route::get('/pedidos/{order}', [AdminController::class, 'showOrder'])->name('orders.show');
     Route::patch('/pedidos/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('orders.status');
 
-    // Clientes
+    // Gestão de Clientes (Manter Cliente)
     Route::get('/clientes', [AdminController::class, 'customers'])->name('customers');
     Route::get('/clientes/{user}', [AdminController::class, 'showCustomer'])->name('customers.show');
     Route::get('/clientes/{user}/editar', [AdminController::class, 'editCustomer'])->name('customers.edit');
     Route::put('/clientes/{user}', [AdminController::class, 'updateCustomer'])->name('customers.update');
     Route::delete('/clientes/{user}', [AdminController::class, 'destroyCustomer'])->name('customers.destroy');
 
-    // Produtos admin
+    // Gestão de Produtos (Manter Produtos)
     Route::get('/produtos', [ProductController::class, 'adminIndex'])->name('products.index');
     Route::get('/produtos/criar', [ProductController::class, 'create'])->name('products.create');
     Route::post('/produtos', [ProductController::class, 'store'])->name('products.store');
@@ -57,9 +87,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/relatorios', [AdminController::class, 'reports'])->name('reports');
 });
 
-
-Route::get('/login', function () { return 'Página de Login'; })->name('login');
-Route::get('/register', function () { return 'Página de Registro'; })->name('register');
-
-// ─── Auth (Breeze/Jetstream gera automaticamente, mas como exemplo:) ─
-//require __DIR__ . '/auth.php';//
+/*
+|--------------------------------------------------------------------------
+| Rotas de Autenticação (Breeze/Fortify)
+|--------------------------------------------------------------------------
+*/
+require __DIR__.'/auth.php';
