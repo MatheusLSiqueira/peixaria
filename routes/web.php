@@ -57,7 +57,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/relatorios', [AdminController::class, 'reports'])->name('reports');
 });
 
-//teste//
+
 Route::get('/login', function () { return 'Página de Login'; })->name('login');
 Route::get('/register', function () { return 'Página de Registro'; })->name('register');
 
