@@ -100,11 +100,16 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
-        }
+        try {
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
 
-        $product->delete();
+            $product->delete();
+        } catch (\Illuminate\Database\QueryException $e) {
+            return redirect()->route('admin.products.index')
+                ->with('error', "Não é possível remover \"{$product->name}\" pois ele está vinculado a pedidos existentes.");
+        }
 
         return redirect()->route('admin.products.index')
                          ->with('success', 'Produto removido com sucesso!');

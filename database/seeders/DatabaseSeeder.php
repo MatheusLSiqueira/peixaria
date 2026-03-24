@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,7 @@ class DatabaseSeeder extends Seeder
             'name'     => 'Administrador',
             'email'    => 'admin@peixaria.com',
             'password' => Hash::make('password'),
-            'role'     => 'admin',
+            'role'     => UserRole::Admin,
         ]);
 
         // Clientes
@@ -29,7 +30,7 @@ class DatabaseSeeder extends Seeder
         foreach ($customers as $customer) {
             User::create(array_merge($customer, [
                 'password' => Hash::make('password'),
-                'role'     => 'cliente',
+                'role'     => UserRole::Client,
                 'phone'    => '(41) 9' . rand(1000, 9999) . '-' . rand(1000, 9999),
                 'address'  => 'Rua das Flores, ' . rand(1, 999) . ', Matinhos - PR',
             ]));

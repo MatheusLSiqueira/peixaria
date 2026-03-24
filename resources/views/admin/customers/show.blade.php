@@ -81,32 +81,12 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50">
-                            @php
-                                $statusColors = [
-                                    'pendente'   => 'bg-yellow-100 text-yellow-700',
-                                    'confirmado' => 'bg-blue-100 text-blue-700',
-                                    'em_preparo' => 'bg-orange-100 text-orange-700',
-                                    'enviado'    => 'bg-purple-100 text-purple-700',
-                                    'entregue'   => 'bg-green-100 text-green-700',
-                                    'cancelado'  => 'bg-red-100 text-red-700',
-                                ];
-                                $statusLabels = [
-                                    'pendente'   => 'Pendente',
-                                    'confirmado' => 'Confirmado',
-                                    'em_preparo' => 'Em Preparo',
-                                    'enviado'    => 'Enviado',
-                                    'entregue'   => 'Entregue',
-                                    'cancelado'  => 'Cancelado',
-                                ];
-                            @endphp
                             @foreach($user->orders as $order)
                                 <tr class="hover:bg-slate-50 transition">
                                     <td class="px-6 py-4 font-medium text-slate-800">#{{ $order->id }}</td>
                                     <td class="px-6 py-4 text-slate-500">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                     <td class="px-6 py-4">
-                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full {{ $statusColors[$order->status] ?? 'bg-slate-100 text-slate-600' }}">
-                                            {{ $statusLabels[$order->status] ?? $order->status }}
-                                        </span>
+                                        <x-order-status :order="$order" />
                                     </td>
                                     <td class="px-6 py-4 text-right font-semibold text-blue-900">
                                         R$ {{ number_format($order->total, 2, ',', '.') }}

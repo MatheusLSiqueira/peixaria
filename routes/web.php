@@ -33,11 +33,6 @@ Route::prefix('carrinho')->name('cart.')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    
-    // Dashboard padrão do usuário
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
 
     // Perfil do Usuário (Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

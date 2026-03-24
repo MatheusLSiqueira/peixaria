@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\UserRole;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -25,7 +26,7 @@ class AdminController extends Controller
             'pending_orders'  => Order::where('status', 'pendente')->count(),
             'total_revenue'   => Order::where('status', '!=', 'cancelado')->sum('total'),
             'total_products'  => Product::count(),
-            'total_customers' => User::where('role', 'cliente')->count(),
+            'total_customers' => User::where('role', UserRole::Client)->count(),
         ];
 
         $recentOrders = Order::with('user')
@@ -74,7 +75,7 @@ class AdminController extends Controller
      */
     public function customers()
     {
-        $customers = User::where('role', 'cliente')
+        $customers = User::where('role', UserRole::Client)
                          ->withCount('orders')
                          ->orderBy('name')
                          ->paginate(15);

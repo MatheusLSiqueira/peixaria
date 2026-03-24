@@ -70,21 +70,8 @@
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 sticky top-24">
             <h2 class="font-semibold text-slate-800 mb-4">Atualizar Status</h2>
 
-            @php
-                $statusColors = [
-                    'pendente'   => 'bg-yellow-100 text-yellow-700',
-                    'confirmado' => 'bg-blue-100 text-blue-700',
-                    'em_preparo' => 'bg-orange-100 text-orange-700',
-                    'enviado'    => 'bg-purple-100 text-purple-700',
-                    'entregue'   => 'bg-green-100 text-green-700',
-                    'cancelado'  => 'bg-red-100 text-red-700',
-                ];
-            @endphp
-
             <p class="text-sm text-slate-500 mb-2">Status atual:</p>
-            <span class="text-sm font-semibold px-3 py-1.5 rounded-full {{ $statusColors[$order->status] ?? '' }} mb-4 inline-block">
-                {{ $order->status_label }}
-            </span>
+            <x-order-status :order="$order" class="mb-4" />
 
             <form method="POST" action="{{ route('admin.orders.status', $order) }}" class="mt-4">
                 @csrf @method('PATCH')

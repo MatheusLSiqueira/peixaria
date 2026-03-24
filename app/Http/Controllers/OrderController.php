@@ -55,50 +55,55 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'Seu carrinho está vazio.');
         }
 
-        DB::transaction(function () use ($request, $cart) {
-            $total = 0;
-            $items = [];
+        try {
+            DB::transaction(function () use ($request, $cart) {
+                $total = 0;
+                $items = [];
 
-            foreach ($cart as $productId => $item) {
-                $product = Product::lockForUpdate()->findOrFail($productId);
+                foreach ($cart as $productId => $item) {
+                    $product = Product::lockForUpdate()->findOrFail($productId);
 
-                if ($item['quantity'] > $product->stock) {
-                    throw new \Exception("Estoque insuficiente para {$product->name}.");
+                    if ($item['quantity'] > $product->stock) {
+                        throw new \Exception("Estoque insuficiente para {$product->name}.");
+                    }
+
+                    $subtotal = $product->price * $item['quantity'];
+                    $total   += $subtotal;
+
+                    $items[]  = [
+                        'product'    => $product,
+                        'quantity'   => $item['quantity'],
+                        'unit_price' => $product->price,
+                        'subtotal'   => $subtotal,
+                    ];
                 }
 
-                $subtotal = $product->price * $item['quantity'];
-                $total   += $subtotal;
-
-                $items[]  = [
-                    'product'    => $product,
-                    'quantity'   => $item['quantity'],
-                    'unit_price' => $product->price,
-                    'subtotal'   => $subtotal,
-                ];
-            }
-
-            $order = Order::create([
-                'user_id'          => auth()->id(),
-                'total'            => $total,
-                'status'           => 'pendente',
-                'shipping_address' => $request->shipping_address,
-                'notes'            => $request->notes,
-            ]);
-
-            foreach ($items as $item) {
-                OrderItem::create([
-                    'order_id'   => $order->id,
-                    'product_id' => $item['product']->id,
-                    'quantity'   => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'subtotal'   => $item['subtotal'],
+                $order = Order::create([
+                    'user_id'          => auth()->id(),
+                    'total'            => $total,
+                    'status'           => 'pendente',
+                    'shipping_address' => $request->shipping_address,
+                    'notes'            => $request->notes,
                 ]);
 
-                $item['product']->decrement('stock', $item['quantity']);
-            }
+                foreach ($items as $item) {
+                    OrderItem::create([
+                        'order_id'   => $order->id,
+                        'product_id' => $item['product']->id,
+                        'quantity'   => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'subtotal'   => $item['subtotal'],
+                    ]);
 
-            session()->forget('cart');
-        });
+                    $item['product']->decrement('stock', $item['quantity']);
+                }
+
+                session()->forget('cart');
+            });
+        } catch (\Exception $e) {
+            return redirect()->route('cart.index')
+                ->with('error', $e->getMessage() ?: 'Não foi possível finalizar o pedido. Tente novamente.');
+        }
 
         return redirect()->route('orders.index')->with('success', 'Pedido realizado com sucesso!');
     }

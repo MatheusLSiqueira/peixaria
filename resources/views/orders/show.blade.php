@@ -14,19 +14,7 @@
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
         <div class="flex flex-wrap gap-4 justify-between items-center">
             <div>
-                @php
-                    $colors = [
-                        'pendente'   => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-                        'confirmado' => 'bg-blue-100 text-blue-700 border-blue-200',
-                        'em_preparo' => 'bg-orange-100 text-orange-700 border-orange-200',
-                        'enviado'    => 'bg-purple-100 text-purple-700 border-purple-200',
-                        'entregue'   => 'bg-green-100 text-green-700 border-green-200',
-                        'cancelado'  => 'bg-red-100 text-red-700 border-red-200',
-                    ];
-                @endphp
-                <span class="text-sm font-semibold px-3 py-1.5 rounded-full border {{ $colors[$order->status] ?? 'bg-gray-100 text-gray-700' }}">
-                    {{ $order->status_label }}
-                </span>
+                <x-order-status :order="$order" />
             </div>
             <div class="text-right">
                 <p class="text-sm text-slate-500">Realizado em</p>
