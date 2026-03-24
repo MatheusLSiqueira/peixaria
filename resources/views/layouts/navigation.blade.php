@@ -24,7 +24,8 @@
                         class="text-gray-300 hover:text-amber-400 border-amber-400">
                         <div class="flex items-center">
                             <span>{{ __('Carrinho') }}</span>
-                            <span class="ms-2 bg-amber-500 text-[#0f172a] text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                            @php $cartCount = array_sum(array_column(session('cart', []), 'quantity')) @endphp
+                            <span class="ms-2 bg-amber-500 text-[#0f172a] text-[10px] font-bold px-1.5 py-0.5 rounded-full">{{ $cartCount }}</span>
                         </div>
                     </x-nav-link>
                     @auth
