@@ -115,7 +115,10 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $this->authorize('view', $order);
+        // Garante que o cliente só veja seus próprios pedidos
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Você não tem permissão para ver este pedido.');
+        }
 
         $order->load('items.product');
 
