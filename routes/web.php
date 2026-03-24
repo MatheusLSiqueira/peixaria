@@ -58,6 +58,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Rotas Administrativas (Apenas para Admins)
 |--------------------------------------------------------------------------
 */
+// Rota de entrada para painel admin
+Route::get('/admin', function () {
+    return redirect()->route('admin.dashboard');
+})->middleware(['auth', 'admin'])->name('admin.home');
+
 // Certifique-se de que o middleware 'admin' está registrado em app/Http/Kernel.php
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
 

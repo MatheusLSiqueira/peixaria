@@ -6,17 +6,18 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
 
 class AdminController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'admin']);
-    }
+    // O middleware agora é gerenciado pelo routes/web.php
 
-    // Dashboard
+    /**
+     * Dashboard Geral
+     */
     public function dashboard()
     {
         $stats = [
@@ -35,7 +36,9 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('stats', 'recentOrders'));
     }
 
-    // Orders
+    /**
+     * Gestão de Pedidos
+     */
     public function orders(Request $request)
     {
         $query = Order::with('user')->orderByDesc('created_at');
@@ -44,14 +47,14 @@ class AdminController extends Controller
             $query->where('status', $request->status);
         }
 
-        $orders = $query->paginate(20);
+        $orders = $query->paginate(20)->withQueryString();
 
         return view('admin.orders.index', compact('orders'));
     }
 
     public function showOrder(Order $order)
     {
-        $order->load('items.product', 'user');
+        $order->load(['items.product', 'user']);
         return view('admin.orders.show', compact('order'));
     }
 
@@ -63,10 +66,12 @@ class AdminController extends Controller
 
         $order->update(['status' => $request->status]);
 
-        return back()->with('success', 'Status do pedido atualizado!');
+        return back()->with('success', 'Status do pedido #' . $order->id . ' atualizado com sucesso!');
     }
 
-    // Customers
+    /**
+     * Gestão de Clientes
+     */
     public function customers()
     {
         $customers = User::where('role', 'cliente')
@@ -95,32 +100,35 @@ class AdminController extends Controller
             'email'    => 'required|email|unique:users,email,' . $user->id,
             'phone'    => 'nullable|string|max:20',
             'address'  => 'nullable|string|max:500',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
         if ($request->filled('password')) {
-            $validated['password'] = Hash::make($validated['password']);
+            $validated['password'] = Hash::make($request->password);
         } else {
             unset($validated['password']);
         }
 
         $user->update($validated);
 
-        return redirect()->route('admin.customers')->with('success', 'Cliente atualizado!');
+        return redirect()->route('admin.customers')->with('success', 'Dados do cliente atualizados!');
     }
 
     public function destroyCustomer(User $user)
     {
-        if ($user->isAdmin()) {
-            return back()->with('error', 'Não é possível remover um administrador.');
+        // Impede exclusão do próprio perfil e de outros administradores
+        if ($user->isAdmin() || $user->getKey() === Auth::id()) {
+            return back()->with('error', 'Ação não permitida: Este usuário possui privilégios administrativos ou é o próprio usuário logado.');
         }
 
         $user->delete();
 
-        return redirect()->route('admin.customers')->with('success', 'Cliente removido!');
+        return redirect()->route('admin.customers')->with('success', 'Cliente removido do sistema.');
     }
 
-    // Reports
+    /**
+     * Relatórios de Vendas
+     */
     public function reports(Request $request)
     {
         $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));

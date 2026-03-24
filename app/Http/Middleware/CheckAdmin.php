@@ -11,7 +11,7 @@ class CheckAdmin
     public function handle(Request $request, Closure $next): Response
     {
         // Se o usuário não estiver logado OU não for admin, volta pra home
-        if (!$request->user() || $request->user()->is_admin !== 1) {
+        if (!$request->user() || !$request->user()->isAdmin()) {
             return redirect('/')->with('error', 'Acesso negado. Apenas para administradores.');
         }
 

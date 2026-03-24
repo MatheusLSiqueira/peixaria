@@ -28,10 +28,17 @@
                         </div>
                     </x-nav-link>
                     @auth
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"
-                            class="text-gray-300 hover:text-amber-400 border-amber-400">
-                            {{ __('Minha Conta') }}
-                        </x-nav-link>
+                        @if(Auth::user()->isAdmin())
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')"
+                                class="text-gray-300 hover:text-amber-400 border-amber-400">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+                        @else
+                            <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')"
+                                class="text-gray-300 hover:text-amber-400 border-amber-400">
+                                {{ __('Meus Pedidos') }}
+                            </x-nav-link>
+                        @endif
                     @endauth
                 </div>
             </div>
@@ -56,7 +63,7 @@
                                 {{ __('Editar Perfil') }}
                             </x-dropdown-link>
 
-                            @if(Auth::user()->is_admin)
+@if(Auth::user()->isAdmin())
                                 <div class="border-t border-gray-100 dark:border-gray-700"></div>
                                 <x-dropdown-link :href="route('admin.dashboard')" class="text-amber-600 font-bold">
                                     {{ __('Painel Admin') }}
