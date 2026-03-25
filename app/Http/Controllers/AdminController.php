@@ -7,9 +7,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
 class AdminController extends Controller
@@ -159,5 +158,58 @@ class AdminController extends Controller
         ];
 
         return view('admin.reports', compact('salesByDay', 'topProducts', 'summary', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Gerar Relatório em PDF
+     */
+    public function generatePdfReport(Request $request)
+    {
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate   = $request->input('end_date', now()->format('Y-m-d'));
+
+        // Buscar todos os pedidos no período
+        $orders = Order::with(['user', 'items.product'])
+            ->where('status', '!=', 'cancelado')
+            ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Calcular estatísticas
+        $summary = [
+            'total_orders'  => $orders->count(),
+            'total_revenue' => $orders->sum('total'),
+            'start_date'    => $startDate,
+            'end_date'      => $endDate,
+        ];
+
+        // Agrupar vendas por dia
+        $salesByDay = $orders->groupBy(function($order) {
+            return $order->created_at->format('Y-m-d');
+        })->map(function($dayOrders) {
+            return [
+                'date' => $dayOrders->first()->created_at->format('d/m/Y'),
+                'total_orders' => $dayOrders->count(),
+                'revenue' => $dayOrders->sum('total'),
+            ];
+        })->values();
+
+        // Produtos mais vendidos
+        $topProducts = DB::table('order_items')
+            ->join('products', 'order_items.product_id', '=', 'products.id')
+            ->join('orders', 'order_items.order_id', '=', 'orders.id')
+            ->where('orders.status', '!=', 'cancelado')
+            ->whereBetween('orders.created_at', [$startDate, $endDate . ' 23:59:59'])
+            ->selectRaw('products.name, SUM(order_items.quantity) as total_sold, SUM(order_items.subtotal) as revenue')
+            ->groupBy('products.id', 'products.name')
+            ->orderByDesc('total_sold')
+            ->limit(10)
+            ->get();
+
+        $pdf = Pdf::loadView('admin.reports-pdf', compact('orders', 'summary', 'salesByDay', 'topProducts'));
+
+        $filename = 'relatorio-pedidos-' . $startDate . '-a-' . $endDate . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

@@ -22,7 +22,18 @@
             </div>
         </div>
 
-        @if($order->shipping_address)
+        @if($order->shipping_city)
+            <div class="mt-4 pt-4 border-t border-slate-100">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Endereço de Entrega</p>
+                <p class="text-sm text-slate-700"><strong>Cidade:</strong> {{ $order->shipping_city }}</p>
+                <p class="text-sm text-slate-700"><strong>Rua:</strong> {{ $order->shipping_street }}, <strong>Nº</strong> {{ $order->shipping_number }}</p>
+                <p class="text-sm text-slate-700"><strong>Bairro:</strong> {{ $order->shipping_neighborhood }}</p>
+                @if($order->shipping_reference)
+                    <p class="text-sm text-slate-700"><strong>Referência:</strong> {{ $order->shipping_reference }}</p>
+                @endif
+                <p class="text-sm text-slate-700"><strong>Endereço completo:</strong> {{ $order->shipping_address }}</p>
+            </div>
+        @elseif($order->shipping_address)
             <div class="mt-4 pt-4 border-t border-slate-100">
                 <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Endereço de Entrega</p>
                 <p class="text-sm text-slate-700">{{ $order->shipping_address }}</p>

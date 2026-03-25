@@ -21,6 +21,10 @@
         <button type="submit" class="bg-blue-900 hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-xl text-sm transition">
             📊 Gerar Relatório
         </button>
+        <a href="{{ route('admin.reports.pdf', request()->query()) }}"
+           class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-xl text-sm transition ml-2">
+            📄 Baixar PDF
+        </a>
     </form>
 </div>
 

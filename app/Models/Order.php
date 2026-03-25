@@ -11,6 +11,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id', 'total', 'status', 'notes', 'shipping_address',
+        'shipping_city', 'shipping_street', 'shipping_number', 'shipping_neighborhood', 'shipping_reference',
     ];
 
     protected $casts = [

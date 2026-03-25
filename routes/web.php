@@ -85,6 +85,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Relatórios
     Route::get('/relatorios', [AdminController::class, 'reports'])->name('reports');
+    Route::get('/relatorios/pdf', [AdminController::class, 'generatePdfReport'])->name('reports.pdf');
 });
 
 /*

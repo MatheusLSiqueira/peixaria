@@ -45,8 +45,12 @@ class OrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'shipping_address' => 'required|string|max:500',
-            'notes'            => 'nullable|string|max:1000',
+            'shipping_city'         => 'required|string|in:Carambeí,Ponta Grossa,Castro',
+            'shipping_street'       => 'required|string|max:255',
+            'shipping_number'       => 'required|string|max:50',
+            'shipping_neighborhood' => 'required|string|max:255',
+            'shipping_reference'    => 'nullable|string|max:255',
+            'notes'                 => 'nullable|string|max:1000',
         ]);
 
         $cart = session('cart', []);
@@ -78,12 +82,26 @@ class OrderController extends Controller
                     ];
                 }
 
+                $shippingAddress = sprintf(
+                    '%s, %s, %s, %s%s',
+                    $request->shipping_city,
+                    $request->shipping_street,
+                    $request->shipping_number,
+                    $request->shipping_neighborhood,
+                    $request->shipping_reference ? ', Ref: '.$request->shipping_reference : ''
+                );
+
                 $order = Order::create([
-                    'user_id'          => auth()->id(),
-                    'total'            => $total,
-                    'status'           => 'pendente',
-                    'shipping_address' => $request->shipping_address,
-                    'notes'            => $request->notes,
+                    'user_id'             => auth()->id(),
+                    'total'               => $total,
+                    'status'              => 'pendente',
+                    'shipping_address'    => $shippingAddress,
+                    'shipping_city'       => $request->shipping_city,
+                    'shipping_street'     => $request->shipping_street,
+                    'shipping_number'     => $request->shipping_number,
+                    'shipping_neighborhood'=> $request->shipping_neighborhood,
+                    'shipping_reference'  => $request->shipping_reference,
+                    'notes'               => $request->notes,
                 ]);
 
                 foreach ($items as $item) {

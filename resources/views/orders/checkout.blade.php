@@ -18,14 +18,75 @@
                     @csrf
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Endereço de Entrega *</label>
-                        <textarea name="shipping_address" rows="3" required
-                                  placeholder="Rua, número, bairro, cidade, estado..."
-                                  class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none">{{ old('shipping_address', auth()->user()->address) }}</textarea>
-                        @error('shipping_address')
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Cidade de entrega *</label>
+                        <select id="shipping_city" name="shipping_city" required
+                                class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option value="" disabled {{ old('shipping_city') ? '' : 'selected' }}>Selecione a cidade</option>
+                            <option value="Carambeí" {{ old('shipping_city') == 'Carambeí' ? 'selected' : '' }}>Carambeí</option>
+                            <option value="Ponta Grossa" {{ old('shipping_city') == 'Ponta Grossa' ? 'selected' : '' }}>Ponta Grossa</option>
+                            <option value="Castro" {{ old('shipping_city') == 'Castro' ? 'selected' : '' }}>Castro</option>
+                        </select>
+                        @error('shipping_city')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div id="shipping-fields" class="mb-4 {{ old('shipping_city') ? '' : 'hidden' }}">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Rua *</label>
+                                <input type="text" name="shipping_street" required
+                                       value="{{ old('shipping_street') }}"
+                                       class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                @error('shipping_street')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Número *</label>
+                                <input type="text" name="shipping_number" required
+                                       value="{{ old('shipping_number') }}"
+                                       class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                @error('shipping_number')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Bairro *</label>
+                                <input type="text" name="shipping_neighborhood" required
+                                       value="{{ old('shipping_neighborhood') }}"
+                                       class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                @error('shipping_neighborhood')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Ponto de referência</label>
+                                <input type="text" name="shipping_reference"
+                                       value="{{ old('shipping_reference') }}"
+                                       class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                @error('shipping_reference')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        const citySelect = document.getElementById('shipping_city');
+                        const shippingFields = document.getElementById('shipping-fields');
+
+                        function toggleShippingFields() {
+                            if (citySelect.value) {
+                                shippingFields.classList.remove('hidden');
+                            } else {
+                                shippingFields.classList.add('hidden');
+                            }
+                        }
+
+                        citySelect.addEventListener('change', toggleShippingFields);
+                        toggleShippingFields();
+                    </script>
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-slate-700 mb-1">Observações (opcional)</label>
