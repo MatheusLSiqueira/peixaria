@@ -14,7 +14,7 @@
         <form method="GET" action="{{ route('products.index') }}" class="flex gap-2 max-w-xl mx-auto">
             <input type="text" name="search" value="{{ request('search') }}"
                    placeholder="Buscar produto..."
-                   class="flex-1 px-4 py-3 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+                   class="bg-white flex-1 px-4 py-3 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
             <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-blue-950 font-semibold px-5 py-3 rounded-xl transition">
                 🔍 Buscar
             </button>
@@ -23,7 +23,7 @@
 </section>
 
 {{-- Filters --}}
-<div class="bg-white border-b shadow-sm sticky top-16 z-40">
+<div class="bg-white border-b shadow-sm sticky ">
     <div class="max-w-7xl mx-auto px-4 py-3 flex gap-3 overflow-x-auto">
         <a href="{{ route('products.index') }}"
            class="flex-none px-4 py-1.5 rounded-full text-sm font-medium transition

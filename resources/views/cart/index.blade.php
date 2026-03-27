@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-    <h1 class="font-display text-3xl text-blue-950 mb-8">🛒 Meu Carrinho</h1>
+    <h1 class="font-display text-3xl text-white mb-8">🛒 Meu Carrinho</h1>
 
     @if(empty($products))
         <div class="text-center py-24 bg-white rounded-2xl border border-slate-100 shadow-sm">
